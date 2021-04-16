@@ -8,6 +8,7 @@ import Hemera from 'nats-hemera'
 import graphqlHTTP from "express-graphql"
 import { makeExecutableSchema } from "graphql-tools"
 
+import { register, login, authMiddleware } from "./auth"
 import { typeDefs, root as resolvers } from './graph'
 
 const app = express()
@@ -29,58 +30,8 @@ hemera.ready(() => {
   app.use(bodyParser.json('application/json'))
   app.use(cookieParser())
 
-  app.post('/api/client/register', async (req, res) => {
-    const { church, name, contact, password } = req.body
-
-    const { data: { token }} = await hemera.act({
-      topic: 'auth-service',
-      cmd: 'create-user',
-      name,
-      contact,
-      church,
-      password
-    })
-
-    res.cookie('token', token)
-    res.json({ token })
-  })
-
-  app.post('/api/client/login', async (req, res) => {
-    const { contact, password } = req.body
-
-    const { data: { token, ok, message }} = await hemera.act({
-      topic: 'auth-service',
-      cmd: 'login-user',
-      contact,
-      password
-    })
-
-    if(ok){
-      res.cookie('token', token)
-      res.json({ ok, token })
-    } else {
-      res.json({ ok, message })
-    }
-  })
-
-  const auth = async (req, res, next) => {
-    let token = req.headers['x-access-token'] || req.headers['authorization'] // Express headers are auto converted to lowercase
-    if(!token) return res.json({ ok: false, message: "Not Authenticated" })
-
-    if (token.startsWith('Bearer ')) {
-      // Remove Bearer from string
-      token = token.slice(7, token.length);
-    }
-    
-    const { data: user } = await hemera.act({
-      topic:'auth-service',
-      cmd:'verify-jwt',
-      token
-    })
-
-    req.user = user
-    next()
-  }
+  app.post('/api/client/register', async (req, res) => await register(req, res, hemera))
+  app.post('/api/client/login', async (req, res) => await login(req, res, hemera))
 
   const context = async ({ req, res }) => {
     return {
@@ -91,7 +42,7 @@ hemera.ready(() => {
     }
   }
 
-  app.use("/api/client", auth, async (req, res, next) => {
+  app.use("/api/client", async (req, res, next) => await authMiddleware(req, res, next, hemera), async (req, res, next) => {
       return graphqlHTTP({
         schema,
         graphiql: true,

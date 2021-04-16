@@ -91,7 +91,7 @@ hemera.ready(() => {
     }
   }
 
-  app.use("/api", auth, async (req, res, next) => {
+  app.use("/api/client", auth, async (req, res, next) => {
       return graphqlHTTP({
         schema,
         graphiql: true,

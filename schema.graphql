@@ -1,0 +1,106 @@
+type Query{
+  hello: String
+
+  devotions(archived: Boolean!): [devotion]
+  devotion(id: String!): devotion
+
+  sermons(archived: Boolean): [sermon]
+  sermon(id: String!): sermon
+
+  events(archived: Boolean): [event]
+  event(id: String!): event
+
+  notices(archived: Boolean): [notice]
+  notice(id: String!): notice
+
+  notes(archived: Boolean): [userNote]
+  note(id: String!): userNote
+}
+
+type Mutation{
+  hello: String
+
+  notes: userNotesMutations
+}
+
+# devotion things
+type devotion{
+  id: String,
+  title: String,
+  verse: String,
+  description: String,
+  date: String,
+  interpretation: String,
+  church: church
+}
+
+# sermon things
+type sermon{
+  id: String,
+  title: String,
+  verse: String,
+  description: String,
+  date: String,
+  church: church,
+  interpretation: String,
+  pastor: String,
+  video_url: String
+}
+
+# notice things
+type notice{
+  id: String,
+  title: String,
+  date: String,
+  content: String,
+  department: String,
+  church: church
+}
+
+# event things
+type event{
+  id: String,
+  title: String,
+  date: String,
+  content: String,
+  department: String,
+  church: church
+}
+
+# user notes things
+type userNote{
+  id: String,
+  title: String,
+  content: String,
+  type: String
+}
+
+input IuserNote{
+  title: String!
+  content: String!
+  type: String!
+}
+
+input UuserNote{
+  id: String!
+  title: String
+  content: String
+  type: String
+}
+
+type userNotesMutations{
+  create(userNote: IuserNote!): userNote
+  update(userNote: UuserNote!): userNote
+  archive(userNote: UuserNote!): userNote
+  restore(userNote: UuserNote!): userNote
+}
+
+type church{
+  id: String
+  name: String
+  devotions(archived: Boolean): [devotion]
+  sermons(archived: Boolean): [sermon]
+  notices(archived: Boolean): [notice]
+  events(archived: Boolean): [event]
+  members(archived: Boolean): [member]
+}

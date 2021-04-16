@@ -1,6 +1,6 @@
 const collection = "church"
 
-const single = async (args, { church, hemera }) => {
+const single = async (root, args, { church, hemera }) => {
   const { data } = await hemera.act({
     topic:'db-service',
     cmd:'find-one',

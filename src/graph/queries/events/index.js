@@ -1,6 +1,6 @@
 const collection = "event"
 
-const list = async ({ archived = false }, { church, hemera }) => {
+const list = async (root, { archived = false }, { church, hemera }) => {
   const { data } = await hemera.act({
     topic:'db-service',
     cmd:'find',
@@ -11,7 +11,7 @@ const list = async ({ archived = false }, { church, hemera }) => {
   return data
 }
 
-const single = async ({ _id }, { hemera }) => {
+const single = async (root, { _id }, { hemera }) => {
   const { data } =  await hemera.act({
     topic:'db-service',
     cmd:'find-one',
